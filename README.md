@@ -16,4 +16,4 @@ A JavaFX based Tetris game developed for Object Oriented Software Development.
 - Exit function
 
 ## Development
-Built using Java and JavaFX.
+Built using Java and JavaFX
