@@ -7,6 +7,8 @@ import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import tetris.application.SceneManager;
 
+
+
 public class HighScoreScreen {
 
     private VBox view;

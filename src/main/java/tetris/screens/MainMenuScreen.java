@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+
 public class MainMenuScreen {
 
     private VBox view;
