@@ -11,7 +11,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 public class SplashScreen {
-
+// showSplash
     public static void showSplash(Stage stage) {
         StackPane root = new StackPane();
         Text titleText = new Text("Tetris Game\nGroup: Tetris_Trio\nCourse: 2006ICT");

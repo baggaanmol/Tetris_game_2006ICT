@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 public class ConfigurationScreen {
 
+
     private VBox view;
 
     public ConfigurationScreen(Stage stage) {
