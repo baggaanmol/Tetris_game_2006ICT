@@ -41,38 +41,9 @@ The project is structured as a Maven project:
     git clone https://github.com/baggaanmol/Tetris_game_2006ICT.git
 
 
-
 ## Development
 Built using Java and JavaFX
 
-Expected Folder 📂 Structure
-Tetris_game_2006ICT/
-├── pom.xml
-├── README.md
-└── src/
-    └── main/
-        └── java/
-            └── tetris/
-                ├── Main.java
-                ├── application/
-                │   ├── TetrisApplication.java
-                │   └── SceneManager.java
-                ├── screens/
-                │   ├── SplashScreen.java
-                │   ├── MainMenuScreen.java
-                │   ├── ConfigurationScreen.java
-                │   ├── HighScoreScreen.java
-                │   └── GameScreen.java
-                ├── game/
-                │   ├── Board.java
-                │   ├── GameController.java
-                │   ├── Tetromino.java
-                │   ├── Piece.java
-                │   ├── GameState.java
-                │   └── ScoreManager.java
-                ├── models/
-                │   ├── GameSettings.java
-                │   ├── ScoreRecord.java
                 │   └── Position.java
                 ├── interfaces/
                 │   ├── Movable.java
