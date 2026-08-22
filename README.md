@@ -8,8 +8,9 @@ This repository contains the implementation of a classic Tetris game developed a
 ## Team Members
 
 - **Anmol** (Repository Owner / Team Lead): Project management, integration, repository administration.
-- **Aditya** (UI Developer): JavaFX UI, splash, menu, and configuration screens.
-- **Kajal** (Game Logic Developer): Game engine, board, tetromino logic, and testing.
+- **Aditya** (UI Developer): Responsible for user interface implementation including movable, scene manager, application.
+- **Kajal** (Game Logic Developer): Game engine, board, tetromino logic, game screens, testing, diagrams, requirements documentation, and README updates.
+
 
 ## Project Structure
 
