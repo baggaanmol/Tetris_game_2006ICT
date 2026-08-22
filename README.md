@@ -1,19 +1,80 @@
 # Tetris Game 2006ICT
+# Tetris Game - 2006ICT Object Oriented Software Development
 
-## Team
-- Anmol - Team Leader / Repository Owner
-- Aditya - JavaFX Developer
-- Kajal - Gameplay and Documentation
+## Milestone 1
 
-## Project Description
-A JavaFX based Tetris game developed for Object Oriented Software Development.
+This repository contains the implementation of a classic Tetris game developed as part of the 2006ICT course assignment. The project is built using Java and JavaFX, following Object-Oriented principles.
 
-## Milestone 1 Features
-- Splash screen
-- Main menu
-- Configuration screen
-- Gameplay screen navigation
-- Exit function
+## Team Members
+
+- **Anmol** (Repository Owner / Team Lead): Project management, integration, repository administration.
+- **Aditya** (UI Developer): JavaFX UI, splash, menu, and configuration screens.
+- **Kajal** (Game Logic Developer): Game engine, board, tetromino logic, and testing.
+
+## Project Structure
+
+The project is structured as a Maven project:
+
+- `src/main/java/tetris/` - Contains all the Java source code.
+    - `application/` - Entry point and scene management.
+    - `screens/` - All UI screens (Splash, Main Menu, Configuration, High Score, Game).
+    - `game/` - Core game logic (Board, Tetromino, GameController).
+    - `interfaces/` - Java interfaces like `Movable`.
+    - `models/` - Data models (to be expanded for Milestone 2).
+    - `utils/` - Utility classes (Constants).
+
+## Features (Milestone 1)
+
+- **Splash Screen:** Displays group information on startup.
+- **Main Menu:** Navigation to Play, Configuration, High Scores, and Exit.
+- **Configuration Screen:** Interactive controls (sliders, checkboxes) for game settings.
+- **High Score Screen:** Displays top 10 dummy high scores.
+- **Game Screen:** Basic game loop with a tetromino (I-Piece) that moves down, can be controlled, and pauses.
+- **Controls:** Arrow keys to move/rotate, 'P' key to pause.
+
+## How to Run
+
+1.  **Prerequisites:** Java Development Kit (JDK) 17 or later, Maven.
+2.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/baggaanmol/Tetris_game_2006ICT.git
+
+
 
 ## Development
 Built using Java and JavaFX
+
+Expected Folder 📂 Structure
+Tetris_game_2006ICT/
+├── pom.xml
+├── README.md
+└── src/
+    └── main/
+        └── java/
+            └── tetris/
+                ├── Main.java
+                ├── application/
+                │   ├── TetrisApplication.java
+                │   └── SceneManager.java
+                ├── screens/
+                │   ├── SplashScreen.java
+                │   ├── MainMenuScreen.java
+                │   ├── ConfigurationScreen.java
+                │   ├── HighScoreScreen.java
+                │   └── GameScreen.java
+                ├── game/
+                │   ├── Board.java
+                │   ├── GameController.java
+                │   ├── Tetromino.java
+                │   ├── Piece.java
+                │   ├── GameState.java
+                │   └── ScoreManager.java
+                ├── models/
+                │   ├── GameSettings.java
+                │   ├── ScoreRecord.java
+                │   └── Position.java
+                ├── interfaces/
+                │   ├── Movable.java
+                │   └── Configurable.java
+                └── utils/
+                    └── Constants.java
