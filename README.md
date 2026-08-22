@@ -42,7 +42,4 @@ The project is structured as a Maven project:
 
 
 ## Development
-Built using Java and JavaFX
-
-                └── utils/
-                    └── Constants.java
+Built using Java and JavaFX in Intellij IDEA
