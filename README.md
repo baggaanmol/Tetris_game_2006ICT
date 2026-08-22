@@ -44,9 +44,5 @@ The project is structured as a Maven project:
 ## Development
 Built using Java and JavaFX
 
-                │   └── Position.java
-                ├── interfaces/
-                │   ├── Movable.java
-                │   └── Configurable.java
                 └── utils/
                     └── Constants.java
