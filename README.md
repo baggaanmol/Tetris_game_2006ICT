@@ -8,8 +8,9 @@ This repository contains the implementation of a classic Tetris game developed a
 ## Team Members
 
 - **Anmol** (Repository Owner / Team Lead): Project management, integration, repository administration.
-- **Aditya** (UI Developer): JavaFX UI, splash, menu, and configuration screens.
-- **Kajal** (Game Logic Developer): Game engine, board, tetromino logic, and testing.
+- **Aditya** (UI Developer): Responsible for user interface implementation including movable, scene manager, application.
+- **Kajal** (Game Logic Developer): Game engine, board, tetromino logic, game screens, testing, diagrams, requirements documentation, and README updates.
+
 
 ## Project Structure
 
@@ -40,41 +41,5 @@ The project is structured as a Maven project:
     git clone https://github.com/baggaanmol/Tetris_game_2006ICT.git
 
 
-
 ## Development
-Built using Java and JavaFX
-
-Expected Folder 📂 Structure
-Tetris_game_2006ICT/
-├── pom.xml
-├── README.md
-└── src/
-    └── main/
-        └── java/
-            └── tetris/
-                ├── Main.java
-                ├── application/
-                │   ├── TetrisApplication.java
-                │   └── SceneManager.java
-                ├── screens/
-                │   ├── SplashScreen.java
-                │   ├── MainMenuScreen.java
-                │   ├── ConfigurationScreen.java
-                │   ├── HighScoreScreen.java
-                │   └── GameScreen.java
-                ├── game/
-                │   ├── Board.java
-                │   ├── GameController.java
-                │   ├── Tetromino.java
-                │   ├── Piece.java
-                │   ├── GameState.java
-                │   └── ScoreManager.java
-                ├── models/
-                │   ├── GameSettings.java
-                │   ├── ScoreRecord.java
-                │   └── Position.java
-                ├── interfaces/
-                │   ├── Movable.java
-                │   └── Configurable.java
-                └── utils/
-                    └── Constants.java
+Built using Java and JavaFX in Intellij IDEA
