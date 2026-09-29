@@ -16,7 +16,7 @@ settings, audio, score persistence, and computer-assisted play.
 | Contributor | Role |
 |---|---|
 | **baggaanmol** / Anmol | Repository owner and team lead; project coordination, integration, repository administration, and release preparation |
-| **adityapamar** / Aditya | User-interface development; home menu, settings, credits, leaderboard, splash screen, styling, and JavaFX scene flow |
+| **adityaparmar** / Aditya | User-interface development; home menu, settings, credits, leaderboard, splash screen, styling, and JavaFX scene flow |
 | **jigyashu29k** / Jigyashu | Game logic and AI development; board behaviour, tetromino movement, collision handling, scoring, testing support, diagrams, and technical documentation |
 
 ## Technology Stack
@@ -28,6 +28,19 @@ settings, audio, score persistence, and computer-assisted play.
 - **Audio:** JavaFX Media
 - **IDE:** IntelliJ IDEA or another Maven-compatible Java IDE
 - **Font:** Bundled Space Grotesk font
+
+## Controls
+
+- `A` / `LEFT`: move left
+- `D` / `RIGHT`: move right
+- `S` / `DOWN`: soft drop while held
+- `W` / `UP`: rotate
+- `SPACE`: hard drop
+- `P`: pause
+
+The local leaderboard starts with placeholder rows named `HIGH SCORE 1` through
+`HIGH SCORE 10`. Once a player finishes a game, the player name and result are
+persisted in `highscores.json`.
 
 ## Project Structure
 
