@@ -9,9 +9,7 @@ The project is built with Java 25, JavaFX 25, and Maven. It applies
 object-oriented design to the game board, tetromino pieces, player controls,
 settings, audio, score persistence, and computer-assisted play.
 
-> This README documents the current implementation in this repository. The
-> project is intended for local development and is not hosted by this
-> repository.
+> This README documents the current implementation in this repository. 
 
 ## Team Members
 
