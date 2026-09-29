@@ -1,45 +1,71 @@
 # Tetris Game 2006ICT
-# Tetris Game - 2006ICT Object Oriented Software Development
 
-## Milestone 1
+## Object-Oriented Software Development — Milestone 1
 
-This repository contains the implementation of a classic Tetris game developed as part of the 2006ICT course assignment. The project is built using Java and JavaFX, following Object-Oriented principles.
+This repository contains a JavaFX implementation of the classic Tetris game
+developed for the 2006ICT Object-Oriented Software Development course.
+
+The project is built with Java 25, JavaFX 25, and Maven. It applies
+object-oriented design to the game board, tetromino pieces, player controls,
+settings, audio, score persistence, and computer-assisted play.
+
+> This README documents the current implementation in this repository. The
+> project is intended for local development and is not hosted by this
+> repository.
 
 ## Team Members
 
-- **Anmol** (Repository Owner / Team Lead): Project management, integration, repository administration.
-- **Aditya** (UI Developer): Responsible for user interface implementation including movable, scene manager, application.
-- **Kajal** (Game Logic Developer): Game engine, board, tetromino logic, game screens, testing, diagrams, requirements documentation, and README updates.
+| Contributor | Role |
+|---|---|
+| **baggaanmol** / Anmol | Repository owner and team lead; project coordination, integration, repository administration, and release preparation |
+| **adityapamar** / Aditya | User-interface development; home menu, settings, credits, leaderboard, splash screen, styling, and JavaFX scene flow |
+| **jigyashu29k** / Jigyashu | Game logic and AI development; board behaviour, tetromino movement, collision handling, scoring, testing support, diagrams, and technical documentation |
 
+## Technology Stack
+
+- **Language:** Java 25
+- **User interface:** JavaFX 25
+- **Build system:** Maven
+- **Persistence:** Gson JSON files
+- **Audio:** JavaFX Media
+- **IDE:** IntelliJ IDEA or another Maven-compatible Java IDE
+- **Font:** Bundled Space Grotesk font
 
 ## Project Structure
 
-The project is structured as a Maven project:
+The repository is a Maven project. The main Maven module is the `Test`
+directory.
 
-- `src/main/java/tetris/` - Contains all the Java source code.
-    - `application/` - Entry point and scene management.
-    - `screens/` - All UI screens (Splash, Main Menu, Configuration, High Score, Game).
-    - `game/` - Core game logic (Board, Tetromino, GameController).
-    - `interfaces/` - Java interfaces like `Movable`.
-    - `models/` - Data models (to be expanded for Milestone 2).
-    - `utils/` - Utility classes (Constants).
-
-## Features (Milestone 1)
-
-- **Splash Screen:** Displays group information on startup.
-- **Main Menu:** Navigation to Play, Configuration, High Scores, and Exit.
-- **Configuration Screen:** Interactive controls (sliders, checkboxes) for game settings.
-- **High Score Screen:** Displays top 10 dummy high scores.
-- **Game Screen:** Basic game loop with a tetromino (I-Piece) that moves down, can be controlled, and pauses.
-- **Controls:** Arrow keys to move/rotate, 'P' key to pause.
-
-## How to Run
-
-1.  **Prerequisites:** Java Development Kit (JDK) 17 or later, Maven.
-2.  **Clone the Repository:**
-    ```bash
-    git clone https://github.com/baggaanmol/Tetris_game_2006ICT.git
-
-
-## Development
-Built using Java and JavaFX in Intellij IDEA
+```text
+ObjectO2006ICT-edited/
+├── README.md
+└── Test/
+    ├── pom.xml
+    └── src/
+        └── main/
+            ├── java/
+            │   └── org/example/
+            │       ├── Main2.java
+            │       ├── Tetris.java
+            │       ├── AI.java
+            │       ├── AudioManager.java
+            │       ├── Settings.java
+            │       ├── HighScoreEntry.java
+            │       ├── HighScoreManager.java
+            │       ├── controller.java
+            │       ├── form.java
+            │       ├── boardeval.java
+            │       ├── PureGame.java
+            │       ├── ExternalPlayer.java
+            │       └── OpMove.java
+            └── resources/
+                ├── assets/
+                │   └── start-image.png
+                ├── audio/
+                │   ├── music.mp3
+                │   ├── move.mp3
+                │   └── clear.mp3
+                ├── fonts/
+                │   └── SpaceGrotesk.ttf
+                └── styles/
+                    └── game.css
