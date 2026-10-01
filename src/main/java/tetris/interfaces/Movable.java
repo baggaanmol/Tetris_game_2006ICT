@@ -1,8 +1,8 @@
 package tetris.interfaces;
 
+/**
+ * Defines pixel-based movement for a game object on thet JavaFX board.
+ */
 public interface Movable {
-    void moveLeft();
-    void moveRight();
-    void moveDown();
-    void rotate();
+    void moveBy(int deltaX, int deltaY);
 }
