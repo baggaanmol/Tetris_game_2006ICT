@@ -1,0 +1,179 @@
+.root {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-size: 14px;
+    -fx-text-fill: #172033;
+}
+
+.app-page,
+.splash-page {
+    -fx-background-color: #e2e8f0;
+}
+
+.page-header {
+    -fx-background-color: transparent;
+}
+
+.page-title,
+.hero-title {
+    -fx-text-fill: #172033;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.hero-title {
+    -fx-font-size: 34px;
+}
+
+.subtitle,
+.splash-label {
+    -fx-text-fill: #475569;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.menu-card,
+.content-card {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 18px;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 18px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.16), 18, 0.2, 0, 6);
+}
+
+.menu-card {
+    -fx-padding: 28px 42px;
+}
+
+.content-card {
+    -fx-padding: 24px;
+}
+
+.start-image {
+    -fx-border-color: #94a3b8;
+}
+
+.button {
+    -fx-background-color: #172033;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 11px 18px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #334155;
+}
+
+.button:pressed {
+    -fx-background-color: #0f172a;
+}
+
+.menu-actions {
+    -fx-padding: 8px 30px 0 30px;
+}
+
+.setting-label,
+.check-box,
+.score-row,
+.credits-text {
+    -fx-text-fill: #172033;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.settings-grid {
+    -fx-padding: 4px;
+}
+
+.toggle-card {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 10px;
+    -fx-padding: 16px;
+}
+
+.check-box .box {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #64748b;
+    -fx-border-radius: 3px;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #172033;
+}
+
+.score-row {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px 16px;
+}
+
+.score-value {
+    -fx-text-fill: #172033;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.slider .track {
+    -fx-background-color: #cbd5e1;
+}
+
+.slider .thumb {
+    -fx-background-color: #172033;
+}
+
+.splash-page {
+    -fx-background-color: #172033;
+}
+
+.splash-label {
+    -fx-text-fill: #f8fafc;
+}
+
+.dialog-pane {
+    -fx-background-color: #e2e8f0;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: #172033;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.dialog-pane .text-field {
+    -fx-background-color: #f8fafc;
+    -fx-text-fill: #172033;
+    -fx-font-size: 14px;
+}
+
+.game-pane {
+    -fx-background-color: #f8fafc;
+}
+
+.game-over-overlay {
+    -fx-background-color: rgba(15, 23, 42, 0.42);
+}
+
+.game-over-card {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 16px;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 16px;
+    -fx-border-width: 1px;
+    -fx-padding: 28px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.25), 20, 0.2, 0, 8);
+}
+
+.game-over-title {
+    -fx-text-fill: #172033;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.game-over-score {
+    -fx-text-fill: #475569;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
