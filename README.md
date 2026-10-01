@@ -31,12 +31,10 @@ and do not change the origin or authorship of source code.
 
 ## Repository layout
 
-The Maven project is at the repository root to match the team's existing
-GitHub repository layout.
+The Tetris project repository structure
 
 ```text
 Tetris_game_2006ICT/
-├── .gitignore
 ├── README.md
 ├── pom.xml
 └── src/
@@ -91,17 +89,15 @@ Tetris_game_2006ICT/
 ## Features
 
 - Splash screen with replaceable artwork.
-- Centered **HOME MENU** with Start Game, Top Scores, Settings, Credits, and
+- Centered **HOME MENU** with Start Game, Top Scores, Settings, Developers, and
   Exit options.
-- Slate-toned interface with dark uppercase typography and a bundled
-  Space Grotesk font.
 - Seven tetromino types with distinct colours.
 - Collision-aware horizontal movement and rotation.
 - Soft drop, hard drop, pause, line clearing, score, and line counters.
 - Game-over card with restart and return-to-menu options.
 - Settings for board dimensions, speed, difficulty, music, sound effects,
   AI play, and external-player mode.
-- Local Top Scores list with placeholder rows shown before any saved results.
+- Local Top Scores list.
 - Deterministic AI placement search that evaluates line clears, height, holes,
   and board bumpiness.
 
@@ -132,8 +128,7 @@ src/main/resources/audio/move.wav
 src/main/resources/audio/clear.wav
 ```
 
-The game falls back to the bundled MP3 audio when a matching WAV file is not
-present. The UI font is in `src/main/resources/fonts/SpaceGrotesk.ttf`; styles
+The UI font is in `src/main/resources/fonts/SpaceGrotesk.ttf`; styles
 are in `src/main/resources/styles/game.css`.
 
 ## Prerequisites
@@ -182,24 +177,17 @@ The game creates its data files in the process working directory:
 - `settings.json` — saved game settings.
 - `highscores.json` — local leaderboard entries.
 
-These files are generated at runtime and should not be committed unless the
-team specifically intends to share sample data.
 
 ## Git collaboration
 
-Use the existing repository and branch history. For each contribution:
+All team members showed commitment to commit their work to the project repository for completion 
 
-1. Pull the latest changes from the shared branch.
-2. Create a focused feature branch.
-3. Keep changes within the relevant package where possible.
-4. Commit with a concise message describing the actual change.
-5. Open a pull request for review before merging.
-
-The Maven project root is the repository root; do not create a second nested
-Maven project or move the application back... :)
 ### Credit: 
 https://pixabay.com/ acted as the main source of the project files for audio 🎶 
+
+
 CHEERS TO OUR TEAM!
+
 ## Repository
 
 https://github.com/baggaanmol/Tetris_game_2006ICT
