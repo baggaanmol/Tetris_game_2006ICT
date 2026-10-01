@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * User-configurable game settings persisted as JSON.
+ * make the user's game settings saved to JSON file.
  */
 public class Settings {
     public static final int MIN_HEIGHT = 8;
