@@ -118,7 +118,7 @@ Tetris_game_2006ICT/
 
 ## Assets
 
-Replace the home image at:
+Asset imagesz are placed at: src/main/resources/assets
 
 ```text
 src/main/resources/assets/home.png
