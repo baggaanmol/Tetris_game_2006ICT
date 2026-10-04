@@ -35,20 +35,25 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class TetrisApplication extends Application {
+    private record PlayerBoard(VBox panel, StackPane boardRoot) {}
+
     private static final double MIN_WINDOW_WIDTH = 900;
     private static final double MIN_WINDOW_HEIGHT = 650;
     private static final String TEAM_LABEL =
-            "ADITYAPARMAR  •  JIGYASHU29K  •  BAGGAANMOL";
+            "ADITYAPAMAR  •  JIGYASHU29K  •  BAGGAANMOL";
 
     private StackPane root;
     private Stage primaryStage;
     private Settings settings;
+    private Settings twoPlayerSettings;
     private AudioManager audioManager;
     private final HighScoreManager highScoreManager = new HighScoreManager();
+    private final List<Tetris> activeGames = new ArrayList<>();
 
     public static void main(String[] args) {
         launch(args);
@@ -88,6 +93,12 @@ public class TetrisApplication extends Application {
     }
 
     private void showMainScreen() {
+        if (twoPlayerSettings != null) {
+            settings.setMusicEnabled(twoPlayerSettings.isMusicEnabled());
+            settings.setSfxEnabled(twoPlayerSettings.isSfxEnabled());
+            twoPlayerSettings = null;
+        }
+        disposeActiveGames();
         audioManager.setMusicEnabled(settings.isMusicEnabled());
         BorderPane page = ScreenLayout.createPage("HOME MENU", TEAM_LABEL);
         VBox menuCard = new VBox(16);
@@ -102,7 +113,7 @@ public class TetrisApplication extends Application {
 
         Label title = new Label("TETRIS");
         title.getStyleClass().add("hero-title");
-        Label subtitle = new Label("FROM THE BEST TO THE BEST!");
+        Label subtitle = new Label("STACK SMART. PLAY CLEAN.");
         subtitle.getStyleClass().add("subtitle");
 
         VBox actions = new VBox(10);
@@ -110,9 +121,10 @@ public class TetrisApplication extends Application {
         actions.setAlignment(Pos.CENTER);
         actions.getChildren().addAll(
                 menuButton("START GAME", this::beginGame),
+                menuButton("TWO PLAYER SPLIT SCREEN", this::beginTwoPlayerGame),
                 menuButton("TOP SCORES", this::showTopScoresScreen),
                 menuButton("SETTINGS", this::showSettingsScreen),
-                menuButton("DEVELOPERS", this::showDeveloperScreen),
+                menuButton("CREDITS", this::showCreditsScreen),
                 menuButton("EXIT", Platform::exit)
         );
 
@@ -122,7 +134,7 @@ public class TetrisApplication extends Application {
     }
 
     private ImageView loadStartImage() {
-        var imageUrl = getClass().getResource("/assets/home.png");
+        var imageUrl = getClass().getResource("/assets/start-image.png");
         if (imageUrl == null) {
             return null;
         }
@@ -133,7 +145,7 @@ public class TetrisApplication extends Application {
         imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
         imageView.setSmooth(true);
-        imageView.getStyleClass().add("home");
+        imageView.getStyleClass().add("start-image");
         return imageView;
     }
 
@@ -151,6 +163,7 @@ public class TetrisApplication extends Application {
 
     private void launchGame(String playerName) {
         try {
+            disposeActiveGames();
             primaryStage.setWidth(Math.max(
                     MIN_WINDOW_WIDTH,
                     settings.getGameWidth() * Tetris.size + 270
@@ -165,6 +178,7 @@ public class TetrisApplication extends Application {
                     highScoreManager,
                     audioManager
             );
+            activeGames.add(game);
             game.start(
                     root,
                     playerName,
@@ -173,15 +187,144 @@ public class TetrisApplication extends Application {
             );
         } catch (Exception exception) {
             exception.printStackTrace();
+            disposeActiveGames();
             showMainScreen();
         }
     }
 
+    private void beginTwoPlayerGame() {
+        Optional<String> firstPlayer = requestPlayerName("PLAYER 1");
+        if (firstPlayer.isEmpty()) {
+            return;
+        }
+        Optional<String> secondPlayer = requestPlayerName("PLAYER 2");
+        if (secondPlayer.isEmpty()) {
+            return;
+        }
+
+        twoPlayerSettings = copySettings(settings);
+        twoPlayerSettings.setAiPlay(false);
+        twoPlayerSettings.setExternalPlayer(false);
+        launchTwoPlayerGame(firstPlayer.get(), secondPlayer.get());
+    }
+
+    private void launchTwoPlayerGame(
+            String firstPlayerName,
+            String secondPlayerName
+    ) {
+        disposeActiveGames();
+        if (twoPlayerSettings == null) {
+            twoPlayerSettings = copySettings(settings);
+            twoPlayerSettings.setAiPlay(false);
+            twoPlayerSettings.setExternalPlayer(false);
+        }
+
+        int boardWidth = twoPlayerSettings.getGameWidth() * Tetris.size;
+        int boardHeight = twoPlayerSettings.getGameHeight() * Tetris.size;
+        int panelWidth = boardWidth + 190;
+        primaryStage.setWidth(Math.max(
+                MIN_WINDOW_WIDTH,
+                panelWidth * 2 + 64
+        ));
+        primaryStage.setHeight(Math.max(
+                MIN_WINDOW_HEIGHT,
+                boardHeight + 100
+        ));
+
+        PlayerBoard firstBoard = createPlayerBoard(
+                "PLAYER 1  •  " + firstPlayerName,
+                panelWidth,
+                boardHeight + 20
+        );
+        PlayerBoard secondBoard = createPlayerBoard(
+                "PLAYER 2  •  " + secondPlayerName,
+                panelWidth,
+                boardHeight + 20
+        );
+
+        HBox splitScreen = new HBox(
+                16, firstBoard.panel(), secondBoard.panel());
+        splitScreen.setAlignment(Pos.CENTER);
+        splitScreen.setPadding(new Insets(12));
+        root.getChildren().setAll(splitScreen);
+
+        Tetris firstGame = new Tetris(
+                twoPlayerSettings, highScoreManager, audioManager);
+        Tetris secondGame = new Tetris(
+                twoPlayerSettings, highScoreManager, audioManager);
+        activeGames.add(firstGame);
+        activeGames.add(secondGame);
+
+        Runnable restartMatch =
+                () -> launchTwoPlayerGame(firstPlayerName, secondPlayerName);
+        Runnable quitMatch = this::showMainScreen;
+        try {
+            firstGame.start(
+                    firstBoard.boardRoot(),
+                    firstPlayerName,
+                    restartMatch,
+                    quitMatch,
+                    Tetris.Controls.playerOne()
+            );
+            secondGame.start(
+                    secondBoard.boardRoot(),
+                    secondPlayerName,
+                    restartMatch,
+                    quitMatch,
+                    Tetris.Controls.playerTwo()
+            );
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            disposeActiveGames();
+            twoPlayerSettings = null;
+            showMainScreen();
+        }
+    }
+
+    private PlayerBoard createPlayerBoard(
+            String title,
+            int width,
+            int height
+    ) {
+        Label playerLabel = new Label(title);
+        playerLabel.getStyleClass().add("setting-label");
+        StackPane boardRoot = new StackPane();
+        boardRoot.setMinSize(width, height);
+        boardRoot.setPrefSize(width, height);
+        VBox playerPanel = new VBox(6, playerLabel, boardRoot);
+        playerPanel.setAlignment(Pos.TOP_CENTER);
+        playerPanel.setPrefWidth(width);
+        VBox.setVgrow(boardRoot, Priority.ALWAYS);
+        return new PlayerBoard(playerPanel, boardRoot);
+    }
+
+    private Settings copySettings(Settings source) {
+        Settings copy = new Settings();
+        copy.setGameWidth(source.getGameWidth());
+        copy.setGameHeight(source.getGameHeight());
+        copy.setGameSpeed(source.getGameSpeed());
+        copy.setDifficulty(source.getDifficulty());
+        copy.setMusicEnabled(source.isMusicEnabled());
+        copy.setSfxEnabled(source.isSfxEnabled());
+        return copy;
+    }
+
+    private void disposeActiveGames() {
+        for (Tetris game : activeGames) {
+            game.dispose();
+        }
+        activeGames.clear();
+    }
+
     private Optional<String> requestPlayerName() {
+        return requestPlayerName("PLAYER");
+    }
+
+    private Optional<String> requestPlayerName(String playerLabel) {
         TextInputDialog dialog = new TextInputDialog("PLAYER");
         dialog.setTitle("START GAME");
-        dialog.setHeaderText("CHOOSE A PLAYER NAME");
-        dialog.setContentText("PLAYER NAME:");
+        dialog.setHeaderText("CHOOSE " + playerLabel + " NAME");
+        dialog.setContentText(playerLabel + " NAME:");
         dialog.initOwner(primaryStage);
 
         DialogPane dialogPane = dialog.getDialogPane();
@@ -197,12 +340,12 @@ public class TetrisApplication extends Application {
                         : name);
     }
 
-    private void showDeveloperScreen() {
-        BorderPane page = ScreenLayout.createPage("DEVELOPERS", "TETRIS 2006ICT");
+    private void showCreditsScreen() {
+        BorderPane page = ScreenLayout.createPage("CREDITS", "TETRIS 2006ICT");
         VBox card = contentCard();
         Label names = new Label(
                 "DEVELOPED BY\n\n"
-                        + "ADITYAPARMAR\n"
+                        + "ADITYAPAMAR\n"
                         + "JIGYASHU29K\n"
                         + "BAGGAANMOL"
         );
@@ -450,6 +593,7 @@ public class TetrisApplication extends Application {
 
     @Override
     public void stop() {
+        disposeActiveGames();
         if (audioManager != null) {
             audioManager.dispose();
         }
