@@ -341,7 +341,7 @@ public class TetrisApplication extends Application {
     }
 
     private void showCreditsScreen() {
-        BorderPane page = ScreenLayout.createPage("CREDITS", "TETRIS 2006ICT");
+        BorderPane page = ScreenLayout.createPage("DEVELOPERS", "TETRIS 2006ICT");
         VBox card = contentCard();
         Label names = new Label(
                 "DEVELOPED BY\n\n"
@@ -358,7 +358,7 @@ public class TetrisApplication extends Application {
     }
 
     private void showSettingsScreen() {
-        BorderPane page = ScreenLayout.createPage("SETTINGS", "TUNE YOUR PLAY STYLE");
+        BorderPane page = ScreenLayout.createPage("SETTINGS", "SET YOUR PLAY STYLE");
         GridPane controls = new GridPane();
         controls.getStyleClass().add("settings-grid");
         controls.setHgap(18);
