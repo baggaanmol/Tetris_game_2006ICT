@@ -113,7 +113,7 @@ public class TetrisApplication extends Application {
 
         Label title = new Label("TETRIS");
         title.getStyleClass().add("hero-title");
-        Label subtitle = new Label("STACK SMART. PLAY CLEAN.");
+        Label subtitle = new Label("FROM THE BEST TO THE BEST!");
         subtitle.getStyleClass().add("subtitle");
 
         VBox actions = new VBox(10);
@@ -121,7 +121,7 @@ public class TetrisApplication extends Application {
         actions.setAlignment(Pos.CENTER);
         actions.getChildren().addAll(
                 menuButton("START GAME", this::beginGame),
-                menuButton("TWO PLAYER SPLIT SCREEN", this::beginTwoPlayerGame),
+                menuButton("TWO PLAYER MODE", this::beginTwoPlayerGame),
                 menuButton("TOP SCORES", this::showTopScoresScreen),
                 menuButton("SETTINGS", this::showSettingsScreen),
                 menuButton("CREDITS", this::showCreditsScreen),
@@ -345,7 +345,7 @@ public class TetrisApplication extends Application {
         VBox card = contentCard();
         Label names = new Label(
                 "DEVELOPED BY\n\n"
-                        + "ADITYAPAMAR\n"
+                        + "ADITYAPARMAR\n"
                         + "JIGYASHU29K\n"
                         + "BAGGAANMOL"
         );
