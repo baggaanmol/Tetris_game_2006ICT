@@ -250,6 +250,25 @@ public class AI {
         piece.form = move.rotation() + 1;
     }
 
+    /**
+     * Places an AI-controlled piece at the top of its planned column. Normal
+     * gravity then moves it visibly to the landing row instead of teleporting
+     * it directly onto the stack.
+     */
+    public void positionAtSpawn(form piece, Move move) {
+        if (piece == null || move == null) {
+            return;
+        }
+        int[][] cells = SHAPES.get(piece.getName())[move.rotation()];
+        Rectangle[] blocks = {piece.a, piece.b, piece.c, piece.d};
+        for (int index = 0; index < blocks.length; index++) {
+            blocks[index].setX(
+                    (move.column() + cells[index][0]) * Tetris.size);
+            blocks[index].setY(cells[index][1] * Tetris.size);
+        }
+        piece.form = move.rotation() + 1;
+    }
+
     public Move play(form piece, int[][] board) {
         Move move = bestMove(piece, board);
         applyMove(piece, move);

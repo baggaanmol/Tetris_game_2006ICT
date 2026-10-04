@@ -4,41 +4,58 @@ import javafx.scene.shape.Rectangle;
 
 
 public class controller {
-    // Board dimensions and occupancy are refreshed when a new game starts.
-    public static final int move = Tetris.move;
-    public static final int size = Tetris.size;
-    public static int xMax = Tetris.xMax;
-    public static int yMax = Tetris.yMax;
-    public static int[][] mesh = Tetris.mesh;
+    private final int xMax;
+    private final int yMax;
+    private final int[][] mesh;
 
-    public static boolean moveRight(form form) {
-        if (form.a.getX() + move <= xMax - size &&
-                form.b.getX() + move <= xMax - size &&
-                form.c.getX() + move <= xMax - size &&
-                form.d.getX() + move <= xMax - size) {
-            int movea = mesh[((int) form.a.getX() / size) + 1][((int) form.a.getY() / size)];
-            int moveb = mesh[((int) form.b.getX() / size) + 1][((int) form.b.getY() / size)];
-            int movec = mesh[((int) form.c.getX() / size) + 1][((int) form.c.getY() / size)];
-            int moved = mesh[((int) form.d.getX() / size) + 1][((int) form.d.getY() / size)];
+    public controller(int xMax, int yMax, int[][] mesh) {
+        if (mesh == null || mesh.length == 0
+                || xMax != mesh.length * Tetris.size
+                || yMax <= 0 || yMax % Tetris.size != 0
+                || mesh[0] == null
+                || yMax != mesh[0].length * Tetris.size) {
+            throw new IllegalArgumentException(
+                    "Board dimensions must match the occupancy grid");
+        }
+        for (int[] column : mesh) {
+            if (column == null || column.length != mesh[0].length) {
+                throw new IllegalArgumentException(
+                        "Board columns must have equal heights");
+            }
+        }
+        this.xMax = xMax;
+        this.yMax = yMax;
+        this.mesh = mesh;
+    }
+
+    public boolean moveRight(form form) {
+        if (form.a.getX() + Tetris.move <= xMax - Tetris.size &&
+                form.b.getX() + Tetris.move <= xMax - Tetris.size &&
+                form.c.getX() + Tetris.move <= xMax - Tetris.size &&
+                form.d.getX() + Tetris.move <= xMax - Tetris.size) {
+            int movea = mesh[((int) form.a.getX() / Tetris.size) + 1][((int) form.a.getY() / Tetris.size)];
+            int moveb = mesh[((int) form.b.getX() / Tetris.size) + 1][((int) form.b.getY() / Tetris.size)];
+            int movec = mesh[((int) form.c.getX() / Tetris.size) + 1][((int) form.c.getY() / Tetris.size)];
+            int moved = mesh[((int) form.d.getX() / Tetris.size) + 1][((int) form.d.getY() / Tetris.size)];
             if (movea == 0 && movea == moveb && moveb == movec && movec == moved) {
-                form.moveBy(move, 0);
+                form.moveBy(Tetris.move, 0);
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean moveLeft(form form) {
-        if (form.a.getX() - move >= 0 &&
-                form.b.getX() - move >= 0 &&
-                form.c.getX() - move >= 0 &&
-                form.d.getX() - move >= 0) {
-            int movea = mesh[((int) form.a.getX() / size) - 1][((int) form.a.getY() / size)];
-            int moveb = mesh[((int) form.b.getX() / size) - 1][((int) form.b.getY() / size)];
-            int movec = mesh[((int) form.c.getX() / size) - 1][((int) form.c.getY() / size)];
-            int moved = mesh[((int) form.d.getX() / size) - 1][((int) form.d.getY() / size)];
+    public boolean moveLeft(form form) {
+        if (form.a.getX() - Tetris.move >= 0 &&
+                form.b.getX() - Tetris.move >= 0 &&
+                form.c.getX() - Tetris.move >= 0 &&
+                form.d.getX() - Tetris.move >= 0) {
+            int movea = mesh[((int) form.a.getX() / Tetris.size) - 1][((int) form.a.getY() / Tetris.size)];
+            int moveb = mesh[((int) form.b.getX() / Tetris.size) - 1][((int) form.b.getY() / Tetris.size)];
+            int movec = mesh[((int) form.c.getX() / Tetris.size) - 1][((int) form.c.getY() / Tetris.size)];
+            int moved = mesh[((int) form.d.getX() / Tetris.size) - 1][((int) form.d.getY() / Tetris.size)];
             if (movea == 0 && movea == moveb && moveb == movec && movec == moved) {
-                form.moveBy(-move, 0);
+                form.moveBy(-Tetris.move, 0);
                 return true;
             }
         }
@@ -48,9 +65,10 @@ public class controller {
 
     //actually make the shapes
     //basicilly manually built each blocks instructions, then run for random to decide which one it makes 
-    public static form makeShape() {
+    public form makeShape() {
         int block = (int) (Math.random() * 100); //what even is random
         String name;
+        int size = Tetris.size;
         Rectangle a = new Rectangle(size - 1, size - 1), b = new Rectangle(size - 1, size - 1), c = new Rectangle(size - 1, size - 1), d = new Rectangle(size - 1, size - 1);
         if (block < 15) { //makes orange L %15
             a.setX(xMax / 2 - size);
@@ -112,7 +130,26 @@ public class controller {
             d.setX(xMax / 2 + size);
             name = "line";
         }
-        return new form(a, b, c, d, name); //woa shape be upon thee
+        Rectangle[] blocks = {a, b, c, d};
+        double minX = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        for (Rectangle blockPart : blocks) {
+            minX = Math.min(minX, blockPart.getX());
+            maxX = Math.max(maxX, blockPart.getX());
+        }
+        double horizontalCorrection = 0;
+        if (maxX > xMax - size) {
+            horizontalCorrection = xMax - size - maxX;
+        }
+        if (minX + horizontalCorrection < 0) {
+            horizontalCorrection = -minX;
+        }
+        if (horizontalCorrection != 0) {
+            for (Rectangle blockPart : blocks) {
+                blockPart.setX(blockPart.getX() + horizontalCorrection);
+            }
+        }
+        return new form(a, b, c, d, name);
     }
 
 }
