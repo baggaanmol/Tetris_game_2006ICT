@@ -19,38 +19,70 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Tetris {
-    //variables
     public static final int move = 30;
     public static final int size = 30;
-    public static int xMax;
-    public static int yMax;
-    public static int[][] mesh;
-    //public static final int move = 25; //Settings dependent
-    //public static final int size = 25;// settings dependent if movable by 1 value
-    //public static int xMax = 250; //settings dependent if deliberately altered
-    //public static int yMax = 500;// settings dependent if deliberately altered
-    //public static int[][] mesh = new int[xMax / size][yMax / size];
-    private static Pane groupe = new Pane();
-    private static form object;
-    private static Scene scene;
-    public static int score = 0;
-    private static boolean game = true;
-    private static boolean paused = false;
-    private static form nextObj;
-    private static int linesNo = 0;
-    private static Text pausedText;
-    private static Text externalWarningText;
+    private static final int FAST_FALL_INTERVAL = 60;
+    private static final List<Tetris> ACTIVE_GAMES = new ArrayList<>();
+
+    public record Controls(
+            KeyCode left,
+            KeyCode right,
+            KeyCode rotate,
+            KeyCode softDrop,
+            KeyCode hardDrop,
+            boolean arrowAliases
+    ) {
+        public static Controls solo() {
+            return new Controls(
+                    KeyCode.A, KeyCode.D, KeyCode.W,
+                    KeyCode.DOWN, KeyCode.SPACE, true);
+        }
+
+        public static Controls playerOne() {
+            return new Controls(
+                    KeyCode.A, KeyCode.D, KeyCode.W,
+                    KeyCode.R, KeyCode.SPACE, false);
+        }
+
+        public static Controls playerTwo() {
+            return new Controls(
+                    KeyCode.LEFT, KeyCode.RIGHT, KeyCode.UP,
+                    KeyCode.DOWN, KeyCode.ENTER, false);
+        }
+    }
+
+    private int xMax;
+    private int yMax;
+    private int[][] mesh;
+    private Pane groupe = new Pane();
+    private form object;
+    private Scene scene;
+    private int score;
+    private boolean game = true;
+    private boolean paused;
+    private form nextObj;
+    private int linesNo;
+    private Text pausedText;
+    private Text externalWarningText;
+    private Text audioStatusText;
     private Runnable onRestart;
     private Runnable onQuit;
     private int fallInterval;
-    private static final int fastFallInterval = 60;
-    //private static final int fallInterval = 300;
-    //private static final int fastFallInterval = 60; // rate while DOWN is held
-    private static boolean fastFall = false;
+    private boolean fastFall;
+    private Timer fallTimer;
+    private EventHandler<KeyEvent> keyPressedHandler;
+    private EventHandler<KeyEvent> keyReleasedHandler;
+    private final Set<KeyCode> toggleKeysDown = EnumSet.noneOf(KeyCode.class);
+    private Controls controls = Controls.solo();
+    private controller pieceController;
     private final Settings settings;
     private final AudioManager audioManager;
     private final AI ai;
@@ -106,21 +138,34 @@ public class Tetris {
             Runnable onRestart,
             Runnable onQuit
     ) throws Exception {
+        start(root, playerName, onRestart, onQuit, Controls.solo());
+    }
+
+    public void start(
+            StackPane root,
+            String playerName,
+            Runnable onRestart,
+            Runnable onQuit,
+            Controls controls
+    ) throws Exception {
+        Objects.requireNonNull(root, "Game root cannot be null");
+        Objects.requireNonNull(controls, "Controls cannot be null");
+        dispose();
         this.onRestart = onRestart;
         this.onQuit = onQuit;
+        this.controls = controls;
         xMax = settings.getGameWidth() * size;
         yMax = settings.getGameHeight() * size;
         fallInterval = 600 - (int)(settings.getGameSpeed() * 50);
         mesh = new int[xMax / size][yMax / size];
-        controller.xMax = xMax;
-        controller.yMax = yMax;
-        controller.mesh = mesh;
+        pieceController = new controller(xMax, yMax, mesh);
 
         audioManager.setMusicEnabled(settings.isMusicEnabled());
         audioManager.setSfxEnabled(settings.isSfxEnabled());
 
-        groupe.getChildren().clear();
+        groupe = new Pane();
         groupe.getStyleClass().add("game-pane");
+        groupe.setPrefSize(xMax + 190, yMax + 10);
         score = 0;
         linesNo = 0;
         game = true;
@@ -132,62 +177,86 @@ public class Tetris {
 
         root.getChildren().setAll(groupe);
         scene = root.getScene();
+        if (scene == null) {
+            throw new IllegalStateException(
+                    "The game root must be attached to a JavaFX Scene");
+        }
 
         Platform.runLater(() -> {
                     groupe.setFocusTraversable(true);
                     groupe.requestFocus();
-                }); //to solve alt+direction movement
+                });
 
-        nextObj = controller.makeShape();
+        nextObj = pieceController.makeShape();
 
         Line line = new Line(xMax, 0, xMax, yMax);
         Text scoretext = new Text("SCORE: 0");
         scoretext.setStyle("-fx-font: 16 'Space Grotesk'; -fx-font-weight: bold;");
-        scoretext.setY(50);
-        scoretext.setX(xMax + 5);
-        Text level = new Text("LINES: 0");
-        level.setStyle("-fx-font: 16 'Space Grotesk'; -fx-font-weight: bold;");
-        level.setY(100);
-        level.setX(xMax + 5);
+        scoretext.setY(36);
+        scoretext.setX(xMax + 10);
+        Text linesText = new Text("LINES: 0");
+        linesText.setStyle("-fx-font: 14 'Space Grotesk'; -fx-font-weight: bold;");
+        linesText.setY(66);
+        linesText.setX(xMax + 10);
+        Text levelText = new Text("LEVEL: 1");
+        levelText.setStyle("-fx-font: 14 'Space Grotesk'; -fx-font-weight: bold;");
+        levelText.setY(94);
+        levelText.setX(xMax + 10);
+        audioStatusText = new Text();
+        audioStatusText.setStyle(
+                "-fx-font: 10 'Space Grotesk'; -fx-font-weight: bold;");
+        audioStatusText.setY(116);
+        audioStatusText.setX(xMax + 10);
         scoretext.setFill(Color.web("#172033"));
-        level.setFill(Color.web("#172033"));
+        linesText.setFill(Color.web("#172033"));
+        levelText.setFill(Color.web("#172033"));
+        audioStatusText.setFill(Color.web("#475569"));
         line.setStroke(Color.web("#64748b"));
         pausedText = new Text("PAUSED");
         pausedText.setFill(Color.RED);
         pausedText.setStyle("-fx-font: 40 'Space Grotesk'; -fx-font-weight: bold;");
-        pausedText.setY(250);
-        pausedText.setX(10);
+        pausedText.setY(yMax / 2.0);
+        pausedText.setX(Math.max(
+                0,
+                (xMax - pausedText.getLayoutBounds().getWidth()) / 2
+        ));
         pausedText.setVisible(false);
         externalWarningText = new Text("External Player server unavailable");
         externalWarningText.setFill(Color.RED);
         externalWarningText.setStyle(
                 "-fx-font: 18 'Space Grotesk'; -fx-font-weight: bold;");
-        externalWarningText.setX((xMax - externalWarningText.getLayoutBounds().getWidth()) / 2);
+        externalWarningText.setX(
+                (xMax - externalWarningText.getLayoutBounds().getWidth()) / 2);
         externalWarningText.setY(yMax / 2.0);
         externalWarningText.setVisible(false);
-        groupe.getChildren().addAll(scoretext, line, level, pausedText, externalWarningText);
+        groupe.getChildren().addAll(
+                scoretext, linesText, levelText, audioStatusText, line,
+                pausedText, externalWarningText);
+        ACTIVE_GAMES.add(this);
+        refreshAudioStatusForSession();
 
         form a = nextObj;
         groupe.getChildren().addAll(a.a, a.b, a.c, a.d);
-        moveOnKeyPress(a);
         object = a;
-        if (settings.isAiEnabled())
-            ai.play(object, mesh);
-        nextObj = controller.makeShape();
+        if (settings.isAiEnabled()) {
+            prepareAiPiece(object);
+        }
+        nextObj = pieceController.makeShape();
 
         if (settings.isExternalPlayerEnabled()) {
             requestExternalMove();
         }
 
-        Timer fall = new Timer("tetris-fall", true);
+        installInputHandlers();
+        fallTimer = new Timer("tetris-fall", true);
         Button menuButton = new Button("HOME MENU");
-        menuButton.setLayoutX(xMax + 5);
-        menuButton.setLayoutY(150);
+        menuButton.setLayoutX(xMax + 10);
+        menuButton.setLayoutY(140);
         menuButton.setOnAction(e -> {
-            fall.cancel();
-            game = false;
-            if (onQuit != null)
+            dispose();
+            if (onQuit != null) {
                 onQuit.run();
+            }
         });
         groupe.getChildren().add(menuButton);
         final int tickMs = 30;
@@ -196,15 +265,22 @@ public class Tetris {
             public void run() {
                 Platform.runLater(new Runnable() {
                     public void run() {
+                        if (!game) {
+                            return;
+                        }
                         if (paused)
                             return;
                         elapsed[0] += tickMs;
-                        if (elapsed[0] < (fastFall ? fastFallInterval : fallInterval))
+                        int currentFallInterval = fastFall
+                                ? FAST_FALL_INTERVAL
+                                : Math.max(60, fallInterval - (getLevel() - 1) * 30);
+                        if (elapsed[0] < currentFallInterval)
                             return;
                         elapsed[0] = 0;
                         if (overlapsLockedCells(object)) {
                             game = false;
-                            fall.cancel();
+                            fallTimer.cancel();
+                            removeInputHandlers();
                             try {
                                 highScoreManager.updateHighScore(playerName, score);
                             } catch (IllegalStateException exception) {
@@ -219,13 +295,14 @@ public class Tetris {
                         if (game) {
                             moveDown(object);
                             scoretext.setText("SCORE: " + Integer.toString(score));
-                            level.setText("LINES: " + Integer.toString(linesNo));
+                            linesText.setText("LINES: " + linesNo);
+                            levelText.setText("LEVEL: " + getLevel());
                         }
                     }
                 });
             }
         };
-        fall.schedule(task, 0, tickMs);
+        fallTimer.schedule(task, 0, tickMs);
     }
 
     private void showGameOverOverlay(StackPane root, String playerName) {
@@ -375,7 +452,7 @@ public class Tetris {
 
             int before = getPieceLeftX(object);
 
-            controller.moveRight(object);
+            pieceController.moveRight(object);
 
             int after = getPieceLeftX(object);
 
@@ -391,7 +468,7 @@ public class Tetris {
 
             int before = getPieceLeftX(object);
 
-            controller.moveLeft(object);
+            pieceController.moveLeft(object);
 
             int after = getPieceLeftX(object);
 
@@ -444,57 +521,121 @@ public class Tetris {
         }
     }
 
-    private void moveOnKeyPress(form form) {
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (!game) {
-                    return;
+    private void installInputHandlers() {
+        keyPressedHandler = event -> {
+            if (event.isConsumed() || !game) {
+                return;
+            }
+
+            KeyCode key = event.getCode();
+            if (key == KeyCode.M || key == KeyCode.S) {
+                if (toggleKeysDown.add(key)) {
+                    if (key == KeyCode.M) {
+                        settings.setMusicEnabled(!settings.isMusicEnabled());
+                        audioManager.setMusicEnabled(settings.isMusicEnabled());
+                    } else {
+                        settings.setSfxEnabled(!settings.isSfxEnabled());
+                        audioManager.setSfxEnabled(settings.isSfxEnabled());
+                    }
+                    refreshAudioStatusForSession();
                 }
+                event.consume();
+                return;
+            }
 
-//                System.out.println(
-//                        "KEY PRESSED: " + event.getCode()
-//                                + " | AI = " + settings.isAiEnabled()
-//                                + " | External = " + settings.isExternalPlayerEnabled()
-//                );
-
-                if (event.getCode() == KeyCode.P) {
+            if (key == KeyCode.P) {
+                if (toggleKeysDown.add(KeyCode.P)) {
                     paused = !paused;
-                    pausedText.setVisible(paused);
-                    return;
                 }
-                if (paused)
-                    return;
-                if (settings.isAiEnabled() || settings.isExternalPlayerEnabled())
-                    return;
-                switch (event.getCode()) {
-                    case RIGHT, D:
-                        controller.moveRight(form);
-                        break;
-                    case DOWN, S:
-                        // hold to fall faster instead of slamming straight to the bottom
-                        fastFall = true;
-                        break;
-                    case LEFT, A:
-                        controller.moveLeft(form);
-                        break;
-                    case UP, W:
-                        MoveTurn(form);
-                        break;
-                    case SPACE:
-                        hardDrop(form);
-                        break;
-                }
+                pausedText.setVisible(paused);
+                return;
             }
-        });
-        scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.DOWN
-                        || event.getCode() == KeyCode.S)
-                    fastFall = false;
+            if (paused || settings.isAiEnabled()
+                    || settings.isExternalPlayerEnabled()) {
+                return;
             }
-        });
+
+            boolean left = key == controls.left()
+                    || (controls.arrowAliases() && key == KeyCode.LEFT);
+            boolean right = key == controls.right()
+                    || (controls.arrowAliases() && key == KeyCode.RIGHT);
+            boolean rotate = key == controls.rotate()
+                    || (controls.arrowAliases() && key == KeyCode.UP);
+
+            if (left) {
+                pieceController.moveLeft(object);
+            } else if (right) {
+                pieceController.moveRight(object);
+            } else if (rotate) {
+                MoveTurn(object);
+            } else if (key == controls.softDrop()) {
+                fastFall = true;
+            } else if (key == controls.hardDrop()) {
+                hardDrop(object);
+            }
+        };
+        keyReleasedHandler = event -> {
+            KeyCode key = event.getCode();
+            if (key == KeyCode.M || key == KeyCode.S || key == KeyCode.P) {
+                toggleKeysDown.remove(key);
+            }
+            if (key == controls.softDrop()) {
+                fastFall = false;
+            }
+        };
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, keyPressedHandler);
+        scene.addEventFilter(KeyEvent.KEY_RELEASED, keyReleasedHandler);
+    }
+
+    private void removeInputHandlers() {
+        if (scene == null) {
+            return;
+        }
+        if (keyPressedHandler != null) {
+            scene.removeEventFilter(KeyEvent.KEY_PRESSED, keyPressedHandler);
+            keyPressedHandler = null;
+        }
+        if (keyReleasedHandler != null) {
+            scene.removeEventFilter(KeyEvent.KEY_RELEASED, keyReleasedHandler);
+            keyReleasedHandler = null;
+        }
+    }
+
+    public void dispose() {
+        game = false;
+        paused = false;
+        fastFall = false;
+        toggleKeysDown.clear();
+        if (fallTimer != null) {
+            fallTimer.cancel();
+            fallTimer.purge();
+            fallTimer = null;
+        }
+        removeInputHandlers();
+        ACTIVE_GAMES.remove(this);
+    }
+
+    private void refreshAudioStatusForSession() {
+        for (Tetris activeGame : ACTIVE_GAMES) {
+            if (activeGame.settings == settings
+                    && activeGame.audioStatusText != null) {
+                activeGame.audioStatusText.setText(
+                        "M MUSIC: "
+                                + (settings.isMusicEnabled() ? "ON" : "OFF")
+                                + "   S SOUND: "
+                                + (settings.isSfxEnabled() ? "ON" : "OFF")
+                );
+            }
+        }
+    }
+
+    private void prepareAiPiece(form piece) {
+        AI.Move move = ai.bestMove(piece, mesh);
+        ai.positionAtSpawn(piece, move);
+    }
+
+    private int getLevel() {
+        return (linesNo / 10) + 1;
     }
 
     private void MoveTurn(form form) {
@@ -807,10 +948,10 @@ public class Tetris {
         clearCompletedRows(groupe);
 
         form nextPiece = nextObj;
-        nextObj = controller.makeShape();
+        nextObj = pieceController.makeShape();
         object = nextPiece;
         if (settings.isAiEnabled()) {
-            ai.play(object, mesh);
+            prepareAiPiece(object);
         }
         if (settings.isExternalPlayerEnabled()) {
             requestExternalMove();
@@ -821,7 +962,6 @@ public class Tetris {
                 nextPiece.c,
                 nextPiece.d
         );
-        moveOnKeyPress(nextPiece);
     }
 
     private boolean overlapsLockedCells(form piece) {
